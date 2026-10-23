@@ -5,7 +5,7 @@
 >
 > Altri progetti di elettronica, Arduino, ESP32, Home Assistant e stampa 3D su **[www.emgi.it](https://www.emgi.it)**
 
-![Pulsante fisico per Home Assistant con ESP8266, ESPHome, LED di stato e case stampato in 3D](immagini/cover-2026-pulsante-fisico-home-assistant.png)
+![Pulsante fisico per Home Assistant con ESP8266, ESPHome, LED di stato e case stampato in 3D](immagini/copertina-3d.jpg)
 
 Questo progetto si integra in Home Assistant. Se non l’hai ancora installato, parti dalla guida [Come installare Home Assistant su Raspberry Pi 4, 5 e Zero](https://www.emgi.it/2026/04/14/installare-home-assistant-su-raspberry-pi/).
 

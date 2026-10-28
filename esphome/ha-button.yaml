@@ -1,15 +1,15 @@
 # =====================================================================
-#  Pulsante fisico per Home Assistant - LOLIN (Wemos) D1 mini v4 (ESP8266, 4MB, USB-C) - ESPHome
-#  Pulsante  : GPIO14 (serigrafia D5 o 14) verso GND (pull-up interno)
-#  LED       : GPIO12 (serigrafia D6 o 12) -> resistenza 220-330 ohm -> LED -> GND
-#  LED acceso = dispositivo ON | spento = OFF
-#  Lampeggio veloce = WiFi assente | lento = Home Assistant non collegato
+#  Physical button for Home Assistant - LOLIN (Wemos) D1 mini v4 (ESP8266, 4MB, USB-C) - ESPHome
+#  Button : GPIO14 (silkscreen D5 or 14) to GND (internal pull-up)
+#  LED    : GPIO12 (silkscreen D6 or 12) -> 220-330 ohm resistor -> LED -> GND
+#  LED on = device ON | off = OFF
+#  Fast blink = no WiFi | slow blink = Home Assistant not connected
 # =====================================================================
 
 substitutions:
-  name: pulsante-ha
-  friendly_name: Pulsante HA
-  target: switch.presa_smart       # <-- metti qui la TUA entita'
+  name: ha-button
+  friendly_name: HA Button
+  target: switch.smart_plug        # <-- put YOUR entity here
 
 esphome:
   name: ${name}
@@ -17,7 +17,7 @@ esphome:
 
 esp8266:
   board: d1_mini
-  restore_from_flash: true            # ricorda luminosita' e abilitazione
+  restore_from_flash: true            # remembers brightness and enable state
 
 preferences:
   flash_write_interval: 5min
@@ -31,13 +31,13 @@ api:
 ota:
   - platform: esphome
     password: !secret ota_password
-  - platform: web_server              # aggiornamento firmware dalla pagina web
+  - platform: web_server              # firmware update from the web page
 
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
-  ap:                                  # rete di emergenza se il WiFi non va
-    ssid: "Pulsante-HA-Setup"
+  ap:                                  # fallback network if the WiFi is down
+    ssid: "HA-Button-Setup"
     password: !secret ap_password
 
 captive_portal:
@@ -51,16 +51,16 @@ web_server:
 
 # ---------------------------------------------------------------------
 binary_sensor:
-  # Stato del dispositivo letto da Home Assistant
+  # Device state read from Home Assistant
   - platform: homeassistant
-    id: stato_dispositivo
-    name: "Stato dispositivo"
+    id: device_state
+    name: "Device state"
     entity_id: ${target}
 
-  # Pulsante fisico
+  # Physical button
   - platform: gpio
-    id: pulsante
-    name: "Pulsante"
+    id: button_in
+    name: "Button"
     pin:
       number: GPIO14   # D5
       mode:
@@ -74,7 +74,7 @@ binary_sensor:
       - if:
           condition:
             and:
-              - switch.is_on: abilita_pulsante
+              - switch.is_on: button_enabled
               - api.connected:
           then:
             - homeassistant.action:
@@ -91,8 +91,8 @@ output:
 
 number:
   - platform: template
-    id: luminosita
-    name: "Luminosita LED"
+    id: led_brightness
+    name: "LED brightness"
     icon: mdi:brightness-6
     entity_category: config
     unit_of_measurement: "%"
@@ -105,8 +105,8 @@ number:
 
 switch:
   - platform: template
-    id: abilita_pulsante
-    name: "Pulsante abilitato"
+    id: button_enabled
+    name: "Button enabled"
     icon: mdi:gesture-tap-button
     entity_category: config
     optimistic: true
@@ -114,11 +114,11 @@ switch:
 
 button:
   - platform: restart
-    name: "Riavvia"
+    name: "Restart"
 
 sensor:
   - platform: wifi_signal
-    name: "Segnale WiFi"
+    name: "WiFi signal"
     update_interval: 60s
   - platform: uptime
     name: "Uptime"
@@ -126,29 +126,29 @@ sensor:
 text_sensor:
   - platform: wifi_info
     ip_address:
-      name: "Indirizzo IP"
+      name: "IP address"
 
 # ---------------------------------------------------------------------
-# Gestione LED ogni 250 ms
+# LED handling every 250 ms
 interval:
   - interval: 250ms
     then:
       - lambda: |-
           static uint8_t tick = 0;
           tick++;
-          float lvl = id(luminosita).state / 100.0f;
+          float lvl = id(led_brightness).state / 100.0f;
           if (isnan(lvl) || lvl <= 0.0f) lvl = 1.0f;
 
           bool wifi_ok = wifi::global_wifi_component->is_connected();
           bool api_ok  = api::global_api_server != nullptr &&
                          api::global_api_server->is_connected();
 
-          if (!wifi_ok) {                       // lampeggio veloce
+          if (!wifi_ok) {                       // fast blink
             id(led_out).set_level((tick & 1) ? lvl : 0.0f);
             return;
           }
-          if (!api_ok || !id(stato_dispositivo).has_state()) {  // lampeggio lento
+          if (!api_ok || !id(device_state).has_state()) {  // slow blink
             id(led_out).set_level((tick & 4) ? lvl : 0.0f);
             return;
           }
-          id(led_out).set_level(id(stato_dispositivo).state ? lvl : 0.0f);
+          id(led_out).set_level(id(device_state).state ? lvl : 0.0f);

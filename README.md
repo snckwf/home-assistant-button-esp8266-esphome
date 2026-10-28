@@ -1,97 +1,97 @@
-# Pulsante fisico per Home Assistant con ESP8266, ESPHome, LED di stato e case stampato in 3D
+# Physical button for Home Assistant with ESP8266, ESPHome, status LED and 3D-printed case
 
-> 📖 **Articolo completo con schema, foto e spiegazioni passo passo:**  
-> **[Pulsante fisico per Home Assistant con ESP8266, ESPHome, LED di stato e case stampato in 3D – www.emgi.it](https://www.emgi.it/2026/10/03/pulsante-fisico-home-assistant-esp8266-esphome-led-case-3d/)**
+> 📖 **Full article with wiring diagram, photos and step-by-step explanations (in Italian):**  
+> **[Physical button for Home Assistant with ESP8266, ESPHome, status LED and 3D-printed case – www.emgi.it](https://www.emgi.it/2026/10/03/pulsante-fisico-home-assistant-esp8266-esphome-led-case-3d/)**
 >
-> Altri progetti di elettronica, Arduino, ESP32, Home Assistant e stampa 3D su **[www.emgi.it](https://www.emgi.it)**
+> More electronics, Arduino, ESP32, Home Assistant and 3D printing projects at **[www.emgi.it](https://www.emgi.it)**
 
-![Pulsante fisico per Home Assistant con ESP8266, ESPHome, LED di stato e case stampato in 3D](immagini/copertina-3d.jpg)
+![Physical button for Home Assistant with ESP8266, ESPHome, status LED and 3D-printed case](images/cover-3d.jpg)
 
-Questo progetto si integra in Home Assistant. Se non l’hai ancora installato, parti dalla guida [Come installare Home Assistant su Raspberry Pi 4, 5 e Zero](https://www.emgi.it/2026/04/14/installare-home-assistant-su-raspberry-pi/).
+This project integrates with Home Assistant. If you have not installed it yet, start from the guide [How to install Home Assistant on Raspberry Pi 4, 5 and Zero](https://www.emgi.it/2026/04/14/installare-home-assistant-su-raspberry-pi/) (in Italian).
 
-A volte toccare lo smartphone o aprire la dashboard per accendere una cosa sola è una scomodità. Volevo un **pulsante fisico**, montato sotto la scrivania, che con un clic accendesse e spegnesse una presa smart di Home Assistant, e che con un **LED** mi dicesse subito se il dispositivo è acceso o spento.
+Sometimes grabbing the phone or opening the dashboard just to switch one thing on is a nuisance. I wanted a **physical button**, mounted under the desk, that toggles a Home Assistant smart plug with one click and uses an **LED** to show right away whether the device is on or off.
 
-## Cosa fa il progetto
+## What it does
 
-- un clic sul pulsante **accende/spegne** qualsiasi entità `switch` di Home Assistant (presa smart, relè, Shelly, Sonoff…)
-- il **LED** segue lo stato reale del dispositivo, anche se lo comandi da app o da automazione
-- il LED **lampeggia** se manca il Wi-Fi (veloce) o se Home Assistant non è collegato (lento)
-- **luminosità del LED** regolabile e pulsante disattivabile da Home Assistant
-- **interfaccia web** integrata, con aggiornamento firmware anche dal browser
-- rete Wi-Fi di emergenza con **captive portal** se la rete di casa non è raggiungibile
+- one click **toggles** any Home Assistant `switch` entity (smart plug, relay, Shelly, Sonoff…)
+- the **LED** follows the real state of the device, even when you control it from the app or an automation
+- the LED **blinks** when the Wi-Fi is missing (fast) or Home Assistant is not connected (slow)
+- adjustable **LED brightness** and a button that can be disabled from Home Assistant
+- built-in **web interface**, with firmware updates from the browser too
+- fallback Wi-Fi network with a **captive portal** if the home network cannot be reached
 
-## Cosa serve
+## What you need
 
-| Componente | Note |
+| Component | Notes |
 |---|---|
-| Wemos / LOLIN D1 mini (ESP8266) | Va bene anche la v4.0.0 con USB-C |
-| Pulsante tattile 12×12 mm con cappuccio tondo | Cappuccio Ø 12,8 mm |
-| LED 5 mm | Del colore che preferisci |
-| Resistenza 220 Ω | 220–330 Ω per il LED |
-| Basetta millefori 4×6 cm | 20×14 fori, passo 2,54 mm |
-| Pin header maschio/femmina | Per montare il D1 mini sotto la basetta |
-| 2 viti M3×12 svasate + 2 viti da legno Ø 4 mm | Chiusura del case e fissaggio sotto il piano |
-| Case stampato in 3D | File STL scaricabile in fondo all’articolo |
+| Wemos / LOLIN D1 mini (ESP8266) | The v4.0.0 with USB-C works too |
+| 12×12 mm tactile button with round cap | Cap Ø 12.8 mm |
+| 5 mm LED | Any colour you like |
+| 220 Ω resistor | 220–330 Ω for the LED |
+| 4×6 cm perfboard | 20×14 holes, 2.54 mm pitch |
+| Male/female pin headers | To mount the D1 mini under the perfboard |
+| 2 countersunk M3×12 screws + 2 Ø 4 mm wood screws | To close the case and fix it under the desk |
+| 3D-printed case | STL files in [`case_3d`](case_3d) |
 
-## Collegamenti elettrici
+## Wiring
 
-Scheda: **Wemos D1 mini** (ESP8266). Pin verificati sul YAML (`GPIO14` pulsante, `GPIO12` LED).
+Board: **Wemos D1 mini** (ESP8266). Pins checked against the YAML (`GPIO14` button, `GPIO12` LED).
 
-| Wemos D1 mini | Collegato a |
+| Wemos D1 mini | Connected to |
 |---|---|
-| **D5 / GPIO14** | un pin del pulsante 12×12 |
-| **GND** | il pin del pulsante **in diagonale** |
-| **D6 / GPIO12** | resistenza **220 Ω** → anodo del LED (gamba lunga) |
-| **GND** | catodo del LED (lato piatto) |
+| **D5 / GPIO14** | one pin of the 12×12 button |
+| **GND** | the button pin **diagonally opposite** |
+| **D6 / GPIO12** | **220 Ω** resistor → LED anode (long leg) |
+| **GND** | LED cathode (flat side) |
 
-- Usa due pin **in diagonale** del pulsante: nei pulsanti 12×12 i pin sono collegati a coppie e in diagonale il contatto è sempre quello giusto.
-- Nessuna resistenza di pull-up: si usa quella interna dell'ESP8266.
-- Su alcuni D1 mini la serigrafia riporta 12 e 14 invece di D6 e D5: il pin fisico è lo stesso.
+- Use two **diagonally opposite** pins of the button: on 12×12 buttons the pins are connected in pairs, and the diagonal pair is always the switched contact.
+- No pull-up resistor: the ESP8266's internal one is used.
+- On some D1 mini boards the silkscreen shows 12 and 14 instead of D6 and D5: it is the same physical pin.
 
-### Disposizione sulla millefori 4×6 cm
+### Layout on the 4×6 cm perfboard
 
-![Basetta](immagini/pulsante-home-assistant-basetta-millefori.png)
+![Perfboard layout](images/ha-button-perfboard-layout.png)
 
-Griglia: lettere A–T sul lato lungo partendo dal lato USB, numeri 1–14 sul lato corto.
+Grid: letters A–T along the long side starting from the USB side, numbers 1–14 along the short side.
 
-- **Pulsante**: fori M5, O5, M10, O10 (centro sulla colonna N)
-- **LED**: anodo in T7, catodo in T8 (flangia a circa 1,5 mm dalla basetta)
-- **Resistenza**: da R2 a R6, sdraiata
-- **D1 mini**: sotto la basetta, pin header nelle righe 3 e 12, USB a filo del bordo corto
-- I collegamenti si fanno con filo sottile sul lato sotto.
+- **Button**: holes M5, O5, M10, O10 (centred on column N)
+- **LED**: anode in T7, cathode in T8 (flange about 1.5 mm above the board)
+- **Resistor**: from R2 to R6, lying flat
+- **D1 mini**: under the perfboard, pin headers in rows 3 and 12, USB flush with the short edge
+- The connections are made with thin wire on the underside.
 
-## Contenuto del repository
+## Repository contents
 
-| Percorso | Descrizione |
+| Path | Description |
 |---|---|
-| `esphome/pulsante-ha.yaml` | Configurazione YAML |
-| `esphome/secrets.yaml.example` | Esempio di secrets.yaml (da copiare con i tuoi dati) |
-| `case_3d/scocca_pulsante_ha.stl` | Modello 3D da stampare |
-| `case_3d/fondo_pulsante_ha.stl` | Modello 3D da stampare |
-| `immagini/` | Foto e immagini dell'articolo |
+| `esphome/ha-button.yaml` | ESPHome configuration |
+| `esphome/secrets.yaml.example` | Example secrets.yaml (copy it and fill in your data) |
+| `case_3d/ha_button_shell.stl` | 3D model to print (shell) |
+| `case_3d/ha_button_base.stl` | 3D model to print (base) |
+| `images/` | Photos and images |
 
-## Come si usa
+## How to use it
 
-1. Copia [`esphome/pulsante-ha.yaml`](esphome/pulsante-ha.yaml) in ESPHome.
-2. Cambia la riga `target:` con l'`entity_id` del dispositivo da comandare.
-3. Aggiungi al `secrets.yaml` di ESPHome le voci di [`secrets.yaml.example`](esphome/secrets.yaml.example) con i tuoi dati.
-4. Stampa scocca e fondo dalla cartella [`case_3d`](case_3d).
+1. Copy [`esphome/ha-button.yaml`](esphome/ha-button.yaml) into ESPHome.
+2. Change the `target:` line to the `entity_id` of the device you want to control.
+3. Add the entries from [`secrets.yaml.example`](esphome/secrets.yaml.example) to your ESPHome `secrets.yaml`, with your own data.
+4. Print the shell and the base from the [`case_3d`](case_3d) folder.
 
-Schema dei collegamenti, dettagli e risoluzione dei problemi: **[articolo su www.emgi.it](https://www.emgi.it/2026/10/03/pulsante-fisico-home-assistant-esp8266-esphome-led-case-3d/)**.
+Wiring diagram, details and troubleshooting: **[article on www.emgi.it](https://www.emgi.it/2026/10/03/pulsante-fisico-home-assistant-esp8266-esphome-led-case-3d/)** (in Italian).
 
-## Immagini
+## Images
 
 <p>
-<img src="immagini/pulsante-home-assistant-basetta-millefori.png" width="32%">
-<img src="immagini/pulsante-home-assistant-case-3d.jpg" width="32%">
-<img src="immagini/pulsante-home-assistant-pannello.jpg" width="32%">
+<img src="images/ha-button-perfboard-layout.png" width="32%">
+<img src="images/ha-button-case-3d.jpg" width="32%">
+<img src="images/ha-button-panel.jpg" width="32%">
 </p>
 
-## Licenza
+## License
 
-- Codice e configurazioni: [MIT](LICENSE)
-- Modelli 3D, schemi e immagini: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.it)
+- Code and configuration: [MIT](LICENSE)
+- 3D models, diagrams and images: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
 
 ---
 
-**Autore:** Massimiliano Sandrin – **[eMGi.it](https://www.emgi.it)** · Domande e commenti sotto l'[articolo sul sito](https://www.emgi.it/2026/10/03/pulsante-fisico-home-assistant-esp8266-esphome-led-case-3d/).
+**Author:** Massimiliano Sandrin – **[eMGi.it](https://www.emgi.it)** · Questions and comments below the [article on the website](https://www.emgi.it/2026/10/03/pulsante-fisico-home-assistant-esp8266-esphome-led-case-3d/).
